@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b0d12">
-<meta name="description" content="Programme d'entraînement escalade de Matthieu : deux jours de salle (mardi, jeudi), semaines de bloc et de renfo à la maison, objectif flash 6b.">
+<meta name="description" content="Programme d'entraînement escalade de Matthieu : deux jours de salle (mardi, jeudi), semaines de bloc et de renfo à la maison, objectif flash 6b+.">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Matthieu">
@@ -12,7 +12,7 @@
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
 <link rel="apple-touch-icon" href="./icons/icon-180.png">
-<title>Escalade Matthieu — objectif flash 6b</title>
+<title>Escalade Matthieu — objectif flash 6b+</title>
 <style>
 :root{
     --bg:#0b0d12;
@@ -260,7 +260,7 @@ textarea{min-height:78px;resize:vertical}
 <body>
 
 <div class="topbar">
-    <div class="brand">🧗 Matthieu<small>Objectif flash 6b</small></div>
+    <div class="brand">🧗 Matthieu<small>Objectif flash 6b+</small></div>
     <div class="spacer"></div>
     <button class="chip" id="chipWeek" onclick="go('week')">S<span id="hdrWeek">1</span></button>
     <button class="chip on" id="chipGrade" onclick="go('today')"><span id="hdrGrade">6c</span></button>
@@ -297,7 +297,7 @@ textarea{min-height:78px;resize:vertical}
             <input type="range" id="lvlRange" min="1" max="9" step="1" value="5" oninput="setLevel(+this.value)">
             <button class="step" onclick="setLevel(level+1)">+</button>
         </div>
-        <div class="lvl-meta"><span>5a</span><span id="lvlWord">charge élevée</span><span>7c</span></div>
+        <div class="lvl-meta"><span>5c+</span><span id="lvlWord">charge élevée</span><span>7a+</span></div>
         <p class="brief" id="coachLine" style="margin-top:12px"></p>
         <p class="brief" id="coachVerdict" style="margin-top:10px"></p>
     </div>
@@ -501,8 +501,11 @@ let fingerCtl = null, homeCtl = null, restRun = null;
 let restLeft = 180;
 
 /* =================== ÉCHELLE =================== */
-const GRADES = ['4a','4b','4c','5a','5b','5c','6a','6b','6c','7a','7b','7c','8a'];
-const BASE = '6b';                                   // objectif : flash 6b (il grimpe du 6a à vue)
+// Échelle française complète (avec les crans +). BASE = ce qu'il grimpe à vue,
+// l'objectif flash est ECART crans plus haut (6a à vue → 6b+ en flash).
+const GRADES = ['4a', '4+', '5a', '5+', '5b', '5b+', '5c', '5c+', '6a', '6a+', '6b', '6b+', '6c', '6c+', '7a', '7a+', '7b', '7b+', '7c', '7c+', '8a'];
+const BASE = '6a';
+const ECART = 3;
 const HOLD = { '20mm':'20mm — gros', '15mm':'15mm — moyen', '10mm':'10mm — petit', '8mm':'8mm — micro' };
 const DAYS = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
 const SETUP = 10;       // fingerboard : temps de mise en place avant chaque série
@@ -543,15 +546,17 @@ function weekToday() {
     render();
 }
 
-/* =================== NIVEAU =================== */
+/* =================== NIVEAU ===================
+   Le curseur déplace tout d'un cran : base à vue, rythme, échauffement et objectif flash. */
 function cfg() {
     const d = level - 5;
     const hold = d <= -3 ? '20mm' : d <= -1 ? '15mm' : d >= 2 ? '10mm' : '15mm';
     return {
         d,
-        grade: g(d),
-        cruise: g(d - 1),
-        easy: g(d - 2),
+        base: g(d),                                          // 6a : ce qu'il grimpe à vue
+        cruise: g(d + 1),                                    // 6a+ : son rythme
+        easy: g(d - 1),                                      // 5c+ : échauffement
+        grade: g(d + ECART),                                 // 6b+ : objectif flash
         vol: d <= -3 ? 2 : d <= -1 ? 3 : d >= 3 ? 6 : 4,
         tries: d <= -1 ? 5 : d >= 2 ? 3 : 4,
         hold,
@@ -588,7 +593,7 @@ function fingerWork() { return phase() === '9-12' ? 5 : 7; }
 function fingerRest() { return phase() === '9-12' ? 55 : 53; }
 
 /* Programme : deux semaines types qui alternent.
-   - Semaine impaire : SALLE le mardi et le jeudi (6a à vue, objectif flash 6b)
+   - Semaine impaire : SALLE le mardi et le jeudi (6a à vue, objectif flash 6b+)
    - Semaine paire   : pas de salle, 2 séances de bloc (lundi, jeudi) + du renfo
    Le cycle de 12 semaines contient donc 6 semaines de salle et 6 semaines de bloc. */
 const murWeek = () => currentWeek % 2 === 1;
@@ -642,15 +647,15 @@ const PLAN_MUR = [
         ]
     },
     {
-        d: 'Mar', icon: '🏔️', name: 'Salle : 6a à vue', kind: 'mur',
-        brief: c => `Première séance de salle. Tu grimpes du ${c.cruise} à vue sans réfléchir, c'est ta base. Une ou deux voies ${c.grade} en flash au passage, pas plus : la séance qui compte c'est jeudi.`,
+d: 'Mar', icon: '🏔️', name: 'Salle : ' + BASE + ' à vue', kind: 'mur',
+        brief: c => `Première séance de salle. Tu grimpes du ${c.base} à vue sans réfléchir, c'est ta base. Une ou deux voies ${c.grade} en flash au passage, pas plus : la séance qui compte c'est jeudi.`,
         items: c => [
-            { t: 'Échauffement progressif', d: '20 min', p: [['Intensité', '50-60 %'], ['Cotation', c.easy + ' → ' + c.cruise]],
+            { t: 'Échauffement progressif', d: '20 min', p: [['Intensité', '50-60 %'], ['Cotation', c.easy + ' → ' + c.base]],
               n: 'Deux voies en lead ou moulinette, mouvements fluides, respiration contrôlée, étirements dynamiques entre chaque voie.' },
-            { t: 'Lecture de voie au sol', d: '30 min', p: [['Cotation', c.cruise], ['Voies', vol(c) + 1], ['Repos', '5 min']],
+            { t: 'Lecture de voie au sol', d: '30 min', p: [['Cotation', c.base], ['Voies', vol(c) + 1], ['Repos', '5 min']],
               n: 'Cinq minutes de lecture (beta, clips, repos), puis grimpe en tête même si tu tombes. Note les crux et les types de prises.' },
             { t: 'Flash ' + c.grade + ' (2 voies)', d: '25 min', p: [['Cotation', c.grade], ['Voies', '2'], ['Essais', '3 max par voie']],
-              n: 'Deux voies au hasard, une seule tentative chacune. On note flash, work ou chute, et on referme le sujet : le reste de la séance reste du ' + c.cruise + '.' },
+              n: 'Deux voies au hasard, une seule tentative chacune. On note flash, work ou chute, et on referme le sujet : le reste de la séance reste du ' + c.base + '.' },
             { t: 'Grimpe lente', d: '20 min', p: [['Cotation', c.cruise], ['Voies', '2'], ['Tempo', '2× plus lent']],
               n: 'Chaque mouvement dure 4 à 6 secondes. Contrôle total, pas de momentum, placement des pieds avant de tirer.' }
         ]
@@ -661,7 +666,7 @@ const PLAN_MUR = [
         items: ITEMS_RECUP
     },
     {
-        d: 'Jeu', icon: '🏔️', name: 'Salle : flash 6b', kind: 'mur',
+        d: 'Jeu', icon: '🏔️', name: 'Salle : flash 6b+', kind: 'mur',
         brief: c => {
             const w = weakProfile();
             return `Deuxième séance de salle, 48 h après le mardi : c'est LA séance qui compte. Peu de voies, mais chacune est un essai.`
@@ -904,8 +909,8 @@ function render() {
     ['phaseChip','phaseChip2','phaseChip3'].forEach(id => { document.getElementById(id).textContent = ph.name; });
 
     document.getElementById('coachLine').innerHTML =
-        `<b>${weekType()}</b> — objectif flash <b>${c.grade}</b>, base à vue ${c.cruise}.<br>` +
-        `Échauffement ${c.easy}, rythme ${c.cruise}. ${c.vol} voies de volume le mardi, ${c.tries} essais max par voie le jeudi.<br>` +
+        `<b>${weekType()}</b> — objectif flash <b>${c.grade}</b>, base à vue ${c.base}.<br>` +
+        `Échauffement ${c.easy}, rythme ${c.cruise}. ${vol(c) + 1} voies de volume le mardi en ${c.base}, ${c.tries} essais max par voie le jeudi en ${c.grade}.<br>` +
         `Doigts ${c.holdLabel.toLowerCase()} avec ${c.lest.toLowerCase()} — en semaine de bloc, c'est là qu'on charge.<br>` +
         `<b>${ph.name}</b> — ${deload() ? 'semaine de décharge, volume réduit.' : 'charge ' + c.charge + '.'}`;
     document.getElementById('phaseText').textContent = ph.text(c);
@@ -1072,7 +1077,7 @@ function finishDay() {
 // Ne renvoie un point faible que si au moins deux profils ont 2 voies ou plus :
 // sinon on déclencherait une correction sur deux essais.
 function profileStats() {
-    const floor = GRADES.indexOf(cfg().cruise);
+    const floor = GRADES.indexOf(cfg().base);
     const by = {};
     load('climbingRoutes', [])
         .filter(r => GRADES.indexOf(r.grade) >= floor)

@@ -50,15 +50,25 @@ const back = n => {
     return iso(d);
 };
 
-/* ---------- objectif par défaut : flash 6b sur une base 6a ---------- */
+/* ---------- objectif par défaut : flash 6b+ sur une base 6a à vue ---------- */
 assert.ok(!G.GRADES.includes('6d') && !G.GRADES.includes('7d'), 'pas de cotation en "d" dans l\'échelle');
-assert.strictEqual(G.cfg().grade, '6b', 'l\'objectif par défaut est le flash 6b');
-assert.strictEqual(G.cfg().cruise, '6a', 'sa base à vue est le 6a');
-assert.strictEqual(G.cfg().easy, '5c', 'l\'échauffement est deux crans en dessous');
+assert.ok(G.GRADES.includes('6b+'), 'l\'échelle doit contenir les crans +');
+assert.strictEqual(G.cfg().grade, '6b+', 'l\'objectif par défaut est le flash 6b+');
+assert.strictEqual(G.cfg().base, '6a', 'sa base à vue est le 6a');
+assert.strictEqual(G.cfg().cruise, '6a+', 'son rythme est le 6a+');
+assert.strictEqual(G.cfg().easy, '5c+', 'l\'échauffement est un cran sous sa base');
 api.setLevel(1);
-assert.strictEqual(G.cfg().grade, '5a', 'niveau 1 = 5a');
+assert.strictEqual(G.cfg().grade, '5c+', 'niveau 1 : objectif 5c+');
+assert.strictEqual(G.cfg().base, '5b', 'niveau 1 : base 5b');
 api.setLevel(9);
-assert.strictEqual(G.cfg().grade, '7c', 'niveau 9 = 7c');
+assert.strictEqual(G.cfg().grade, '7a+', 'niveau 9 : objectif 7a+');
+assert.strictEqual(G.cfg().base, '6c', 'niveau 9 : base 6c');
+[1, 3, 5, 7, 9].forEach(lv => {
+    api.setLevel(lv);
+    assert.ok(G.GRADES.indexOf(cfgGrade()) - G.GRADES.indexOf(cfgBase()) === 3, 'l\'écart objectif/base doit rester 3');
+});
+function cfgGrade() { return G.cfg().grade; }
+function cfgBase() { return G.cfg().base; }
 
 /* ---------- alternance : 6 semaines de salle, 6 semaines de bloc ---------- */
 const weeksMur = [], weeksBloc = [];
@@ -69,7 +79,7 @@ for (let w = 1; w <= 12; w++) {
 assert.deepStrictEqual(weeksMur, [1, 3, 5, 7, 9, 11], 'les semaines de salle doivent être les semaines impaires');
 assert.deepStrictEqual(weeksBloc, [2, 4, 6, 8, 10, 12], 'les semaines de bloc doivent être les semaines paires');
 assert.strictEqual(G.weekType(), 'Semaine de bloc', 'la semaine 12 est une semaine de bloc');
-console.log('ok — objectif flash 6b sur base 6a, alternance 6 semaines de salle / 6 de bloc');
+console.log('ok — objectif flash 6b+ sur base 6a à vue, alternance 6 semaines de salle / 6 de bloc');
 
 /* ---------- la semaine de salle : deux jours en salle, jamais plus ---------- */
 api.start(iso(new Date()));          // semaine 1 : semaine de salle
@@ -96,11 +106,11 @@ const tuesday = G.PLAN_MUR[1].items(G.cfg());
 const thursday = G.PLAN_MUR[3].items(G.cfg());
 assert.ok(tuesday.some(it => it.p.some(p => p[1] === '6a')), 'le mardi doit grimper du 6a');
 assert.ok(!tuesday.some(it => it.n.includes('c\'est LA séance')), 'le mardi ne doit pas être la séance clé');
-assert.ok(thursday.some(it => it.t.includes('6b')), 'le jeudi doit contenir les essais 6b');
+assert.ok(thursday.some(it => it.t.includes('6b+')), 'le jeudi doit contenir les essais 6b+');
 assert.ok(thursday.some(it => it.t.includes('Sortie propre')), 'le jeudi doit finir propre, pas en pompant');
 assert.ok(G.vol2(G.cfg()) < G.vol(G.cfg()), 'le jeudi doit avoir moins de voies que le mardi');
 assert.ok(G.homeItems().every(it => it.t.length && it.rest >= 45), 'le renfo doit être complet');
-console.log('ok — mardi = volume 6a, jeudi = flash 6b, 2 blocs + renfo la semaine sans salle');
+console.log('ok — mardi = volume 6a, jeudi = flash 6b+, 2 blocs + renfo la semaine sans salle');
 
 for (let lv = 1; lv <= 9; lv++) {
     for (let w = 1; w <= 12; w++) {
@@ -216,8 +226,8 @@ assert.strictEqual(G.weakProfile(), null, 'un seul profil ne permet pas de concl
 console.log('ok — profil faible : désigné seulement avec 2 profils et 2 voies chacun, priorisé au jeudi');
 
 /* ---------- coach ---------- */
-// Le coach juge les tentatives au niveau objectif (6b), pas les voies à vue
-const routesAt = (statuses, grade = '6b', days = 4) => statuses.map((status, i) => ({
+// Le coach juge les tentatives au niveau objectif (6b+), pas les voies à vue
+const routesAt = (statuses, grade = '6b+', days = 4) => statuses.map((status, i) => ({
     name: 'v' + i,
     grade,
     profile: 'Dévers',

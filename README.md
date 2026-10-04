@@ -1,6 +1,6 @@
 # 🧗 Escalade Matthieu
 
-Application web (PWA) d'entraînement escalade pour Matthieu : **objectif flash 6b** sur une base de **6a à vue**, en alternant **semaines de salle** et **semaines de bloc**.
+Application web (PWA) d'entraînement escalade pour Matthieu : **objectif flash 6b+** sur une base de **6a à vue**, en alternant **semaines de salle** et **semaines de bloc**.
 
 Le cycle de 12 semaines contient 6 semaines de salle et 6 semaines sans salle.
 
@@ -11,9 +11,9 @@ Le cycle de 12 semaines contient 6 semaines de salle et 6 semaines sans salle.
 | Jour | Séance |
 |---|---|
 | Lundi 🖐️ | Doigts modéré (fingerboard, sans charge) |
-| Mardi 🏔️ | Salle : **volume 6a à vue** + 2 flash 6b au passage |
+| Mardi 🏔️ | Salle : **volume 6a à vue** + 2 flash 6b+ au passage |
 | Mercredi ☀️ | Récupération active (mobilité, préhension douce, marche) |
-| Jeudi 🏔️ | Salle : **flash 6b**, c'est la séance clé, on sort propre |
+| Jeudi 🏔️ | Salle : **flash 6b+**, c'est la séance clé, on sort propre |
 | Vendredi 🏠 | Renfo (tractions, pompes, dips, gainage) |
 | Samedi 🏃 | Cardio zone 1 + technique de pieds |
 | Dimanche 😴 | Repos complet |
@@ -34,9 +34,9 @@ Le **fingerboard se déplace** : léger le lundi en semaine de salle (le tendon 
 
 ## Fonctions
 
-- 🎯 **Niveau réglable de 5a à 7c** — la cotation objective qui pilote les essais flash ; la base à vue est toujours un cran en dessous
+- 🎯 **Niveau réglable de 5c+ à 7a+** — l'objectif flash qui pilote les essais, toujours 3 crans au-dessus de sa base à vue (échauffement, rythme et objectif se déplacent ensemble)
 - 📆 **Semaine calculée** depuis la date de lancement, l'alternance salle / bloc se fait toute seule
-- 🧠 **Coach** — avis sur les tentatives au niveau objectif uniquement : flasher du 6a n'est pas flasher du 6b
+- 🧠 **Coach** — avis sur les tentatives au niveau objectif uniquement : flasher du 6a n'est pas flasher du 6b+
 - 📉 **Profil faible** — taux de flash par profil, le plus faible est priorisé au jeudi
 - 🖐️ **Chrono doigts** — mise en place 10 s, travail, repos enchaînés ; poids noté et record par prise
 - 🏠 **Chrono renfo** — attend ta validation sur chaque série puis décompte le repos
