@@ -40,6 +40,7 @@ Le **fingerboard se déplace** : léger le lundi en semaine de salle (le tendon 
 - 📉 **Profil faible** — taux de flash par profil, le plus faible est priorisé au jeudi
 - 🖐️ **Chrono doigts** — mise en place 10 s, travail, repos enchaînés ; poids noté et record par prise
 - 🏠 **Chrono renfo** — attend ta validation sur chaque série puis décompte le repos
+- ◎ **Tout sur l'onglet Auj.** — le chrono de la séance (doigts le lundi ou le samedi, renfo le vendredi ou le mardi selon le programme), le poids utilisé, la prescription et les records vivent sous la checklist du jour. L'onglet Force a disparu : il ne restait plus rien dedans
 - ▲ **Mur** — journal de voies (cotation, profil, flash/work/chute, note)
 - ◔ **Bilan** — progression, taux de flash, taux par profil, historique, alertes santé des doigts
 - 📱 PWA installable, fonctionne hors-ligne

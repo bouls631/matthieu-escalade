@@ -7,13 +7,19 @@ const code = fs.readFileSync('index.html', 'utf8').match(/<script>([\s\S]*)<\/sc
 // Stub DOM minimal : le script n'écrit que dans des éléments
 const makeEl = () => ({
     textContent: '', innerHTML: '', value: '', className: '', disabled: false, dataset: {},
-    style: {}, closest: () => null, children: [],
-    addEventListener() {}, appendChild() {},
-    classList: { add() {}, remove() {}, toggle() {} }
+    style: {}, closest: () => null, children: [], parentNode: null, id: '',
+    addEventListener() {},
+    appendChild(c) { c.parentNode = this; this.children.push(c); },
+    classList: {
+        set: new Set(),
+        add(c) { this.set.add(c); }, remove(c) { this.set.delete(c); },
+        toggle(c, on) { on ? this.set.add(c) : this.set.delete(c); },
+        has(c) { return this.set.has(c); }
+    }
 });
 const els = {};
 global.document = {
-    getElementById: id => (els[id] = els[id] || makeEl()),
+    getElementById: id => (els[id] = els[id] || Object.assign(makeEl(), { id })),
     createElement: () => makeEl(),
     querySelectorAll: () => []
 };
@@ -39,7 +45,9 @@ new Function('api', code + [
     'api.start = iso => { store("climbingStart", iso); store("climbingWeekOffset", 0); syncWeek(); };',
     'api.logFinger = () => { document.getElementById("fingerKg").value = "12"; logFinger(); };',
     'api.newCycle = n => newCycle(n);',
-    'api.nudgeWeek = n => nudgeWeek(n);'
+    'api.nudgeWeek = n => nudgeWeek(n);',
+    'api.chrono = d => chronoFor(d);',
+    'api.tick = (fn, ms) => tick(fn, ms);'
 ].join('\n'))(api);
 
 const G = api.get();
@@ -294,3 +302,48 @@ assert.strictEqual(els.todayPct.textContent, '100 %', 'la séance ne se valide p
 assert.strictEqual(JSON.parse(localStorage.getItem('climbingSessions')).length, 1, 'séance non enregistrée');
 assert.ok(els.weekStrip.innerHTML.includes('✓'), 'la semaine ne marque pas la séance faite');
 console.log('ok — checklist, validation de séance et suivi dans la semaine');
+
+/* ---------- le chrono vit sur la page du jour ---------- */
+api.setLevel(5);
+api.start(iso(new Date()));                            // semaine 1 : semaine de salle
+assert.strictEqual(api.chrono(1), 'finger', 'le lundi affiche le fingerboard');
+assert.strictEqual(api.chrono(5), 'home', 'le vendredi affiche le renfo');
+assert.strictEqual(api.chrono(6), null, 'pas de chrono le samedi en semaine de salle');
+api.start(back(7));                                     // semaine 2 : semaine de bloc
+assert.strictEqual(api.chrono(6), 'finger', 'en bloc, le fingerboard tombe le samedi');
+assert.strictEqual(api.chrono(2), 'home', 'en bloc, le renfo tombe le mardi');
+assert.strictEqual(api.chrono(5), null, 'le renfo léger n\'a pas de chrono');
+
+const shown = id => !els[id].classList.has('hidden');
+api.start(iso(new Date()));
+api.day(1);
+assert.ok(shown('todayFinger') && shown('todayFingerLog') && !shown('todayHome'), 'le lundi montre le chrono doigts');
+api.day(5);
+assert.ok(shown('todayHome') && !shown('todayFinger'), 'le vendredi montre le chrono renfo');
+api.start(back(7));
+api.day(2);
+assert.ok(shown('todayHome'), 'en bloc, le mardi montre le chrono renfo');
+api.day(5);
+assert.ok(!shown('todayFinger') && !shown('todayHome'), 'le renfo léger n\'a pas de carte chrono');
+api.start(iso(new Date()));
+assert.strictEqual(els.vForce, undefined, 'l\'onglet Force doit être supprimé : tout est dans l\'onglet Auj.');
+console.log('ok — chronos sur la page du jour dans les deux programmes, onglet Force supprimé');
+
+/* ---------- un chrono arrêté ne doit jamais repartir ---------- */
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+(async () => {
+    let fired = 0;
+    const ctl = api.tick(() => { fired++; if (fired === 1) ctl.stop(); }, 10);   // stop() depuis le callback
+    await sleep(150);
+    assert.strictEqual(fired, 1, 'un chrono arrêté depuis son callback se relance et compte 2× trop vite');
+
+    let n = 0;
+    const c2 = api.tick(() => n++, 10);
+    await sleep(150);
+    c2.stop();
+    const seen = n;
+    await sleep(80);
+    assert.strictEqual(n, seen, 'un chrono arrêté doit rester arrêté');
+    assert.ok(G.seqFinger().length > 1 && G.seqHome().length > 1, 'les deux séquences doivent avoir plusieurs phases');
+    console.log('ok — aucun décompte fantôme : une phase = une seconde');
+})().catch(e => { console.error(e); process.exit(1); });

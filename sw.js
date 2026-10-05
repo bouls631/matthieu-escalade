@@ -1,4 +1,4 @@
-const CACHE = 'matthieu-escalade-v2';
+const CACHE = 'matthieu-escalade-v5';
 const ASSETS = [
     './',
     './index.html',
